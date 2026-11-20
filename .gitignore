@@ -1,0 +1,64 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# Dependencias y compilacion
+**/node_modules/
+**/dist/
+**/target/
+**/coverage/
+**/playwright-report/
+**/test-results/
+
+# Entornos y secretos
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# IDE y archivos temporales
+.idea/
+.vscode/
+*.log
+*.dump
+*.backup
+
+# Registros y procedimientos operativos ligados a una instalación
+/docs/limpieza-esquemas-aprobados.json
+/docs/limpieza-esquemas-historicos.md
+/docs/v032-aplicar.psql
+/docs/v032-aplicacion-controlada.md
+/docs/v032-ejecutar.ps1
+/docs/v032-resultado-principal.md

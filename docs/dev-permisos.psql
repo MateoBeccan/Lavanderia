@@ -1,0 +1,37 @@
+-- Entrada de desarrollo para PSQL Tool. Los destinos se fijan en el archivo.
+\set ON_ERROR_STOP on
+BEGIN READ ONLY;
+SET LOCAL search_path = pg_catalog;
+DO $$
+BEGIN
+    IF current_database() <> 'lavanderia_dev' OR inet_server_port() IS DISTINCT FROM 5432
+       OR inet_server_addr() IS DISTINCT FROM '127.0.0.1'::inet
+       OR session_user = 'lavanderia_dev_app'
+       OR NOT (SELECT rolsuper FROM pg_roles WHERE rolname = current_user) THEN
+        RAISE EXCEPTION 'Se requiere una sesión administrativa en lavanderia_dev, 127.0.0.1:5432';
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'lavanderia_dev_app' AND rolcanlogin
+                  AND NOT (rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication OR rolbypassrls))
+       OR EXISTS (SELECT FROM pg_auth_members
+                  WHERE member = 'lavanderia_dev_app'::regrole OR roleid = 'lavanderia_dev_app'::regrole)
+       OR has_database_privilege('lavanderia_dev_app', current_database(), 'CREATE,TEMP')
+       OR has_schema_privilege('lavanderia_dev_app', 'public', 'CREATE') THEN
+        RAISE EXCEPTION 'Primero limitar el rol y los privilegios de base y esquema';
+    END IF;
+    IF to_regclass('public.ux_cajas_unica_abierta') IS NULL
+       OR to_regclass('public.solicitudes_financieras_idempotentes') IS NULL
+       OR (SELECT count(*) FROM public.roles WHERE nombre_rol IN ('ADMINISTRADOR', 'EMPLEADO')) <> 2
+       OR (SELECT count(*) FROM public.estados_pedido WHERE activo) < 5
+       OR (SELECT count(*) FROM public.estados_pago WHERE activo) < 3
+       OR (SELECT count(*) FROM public.metodos_pago WHERE activo) < 4
+       OR (SELECT count(*) FROM public.tipos_movimiento_caja WHERE activo) < 4 THEN
+        RAISE EXCEPTION 'Primero completar la estructura y los catálogos de dev';
+    END IF;
+END
+$$;
+COMMIT;
+
+\set app_db lavanderia_dev
+\set app_schema public
+\set app_role lavanderia_dev_app
+\ir permisos-postgresql-aplicacion.sql
